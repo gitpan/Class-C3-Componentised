@@ -44,7 +44,7 @@ use Class::C3;
 use Class::Inspector;
 use Carp;
 
-our $VERSION = 1.0001;
+our $VERSION = 1.0002;
 
 =head2 load_components( @comps )
 
@@ -121,7 +121,9 @@ sub ensure_class_loaded {
   croak "Invalid class name $f_class"
       if ($f_class=~m/(?:\b:\b|\:{3,})/);
   return if Class::Inspector->loaded($f_class);
-  eval "require $f_class"; # require needs a bareword or filename
+  my $file = $f_class . '.pm';
+  $file =~ s{::}{/}g;
+  eval { CORE::require($file) }; # require needs a bareword or filename
   if ($@) {
     if ($class->can('throw_exception')) {
       $class->throw_exception($@);
@@ -144,18 +146,6 @@ sub ensure_class_found {
          Class::Inspector->installed($f_class);
 }
 
-# Returns a true value if the specified class is installed and loaded
-# successfully, throws an exception if the class is found but not loaded
-# successfully, and false if the class is not installed
-sub _load_optional_class {
-  my ($class, $f_class) = @_;
-  if ($class->ensure_class_found($f_class)) {
-    $class->ensure_class_loaded($f_class);
-    return 1;
-  } else {
-    return 0;
-  }
-}
 
 =head2 inject_base
 
