@@ -40,11 +40,13 @@ L<MooseX::Object::Pluggable>.
 use strict;
 use warnings;
 
-use Class::C3;
+# see Makefile.PL for discussion on why we load both Class::C3 and MRO::Compat
+use Class::C3 ();
+use MRO::Compat;
 use Class::Inspector;
 use Carp;
 
-our $VERSION = 1.0003;
+our $VERSION = 1.0004;
 
 =head2 load_components( @comps )
 
@@ -163,11 +165,7 @@ sub inject_base {
     }
   }
 
-  # Yes, this is hack. But it *does* work. Please don't submit tickets about
-  # it on the basis of the comments in Class::C3, the author was on #dbix-class
-  # while I was implementing this.
-
-  eval "package $target; import Class::C3;" unless exists $Class::C3::MRO{$target};
+  mro::set_mro($target, 'c3');
 }
 
 =head1 AUTHOR
