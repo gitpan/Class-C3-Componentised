@@ -15,6 +15,7 @@ README
 t/00-load.t
 t/01-basic.t
 t/lib/MyModule.pm
+t/lib/MyModule/ErrorComponent.pm
 t/lib/MyModule/OwnComponent.pm
 t/lib/MyModule/Plugin/Foo.pm
 t/pod-coverage.t
