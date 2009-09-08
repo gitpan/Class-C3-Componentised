@@ -14,9 +14,11 @@ META.yml
 README
 t/00-load.t
 t/01-basic.t
+t/02-explicit.t
 t/lib/MyModule.pm
 t/lib/MyModule/ErrorComponent.pm
 t/lib/MyModule/OwnComponent.pm
 t/lib/MyModule/Plugin/Foo.pm
+t/lib/MyModuleNoBase.pm
 t/pod-coverage.t
 t/pod.t
