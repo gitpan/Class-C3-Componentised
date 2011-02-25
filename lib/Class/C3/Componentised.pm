@@ -49,7 +49,7 @@ use MRO::Compat;
 
 use Carp;
 
-our $VERSION = 1.0007;
+our $VERSION = 1.0008;
 
 my $invalid_class = qr/(?: \b:\b | \:{3,} | \:\:$ )/x;
 
@@ -188,13 +188,10 @@ sub inject_base {
   my $class = shift;
   my $target = shift;
 
-  my %isa = map { $_ => 1 } ($target, @{mro::get_linear_isa($target)} );
-
   for (reverse @_) {
     no strict 'refs';
-    unless ($isa{$_}++) {
-      unshift ( @{"${target}::ISA"}, $_ );
-    }
+    unshift ( @{"${target}::ISA"}, $_ )
+      unless ($target eq $_ || $target->isa($_));
   }
 
   mro::set_mro($target, 'c3');
