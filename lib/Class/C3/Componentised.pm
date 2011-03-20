@@ -47,9 +47,9 @@ use warnings;
 # Therefore leaving it in indefinitely.
 use MRO::Compat;
 
-use Carp;
+use Carp ();
 
-our $VERSION = 1.0008;
+our $VERSION = 1.0009;
 
 my $invalid_class = qr/(?: \b:\b | \:{3,} | \:\:$ )/x;
 
@@ -142,16 +142,16 @@ sub ensure_class_loaded {
     return if ( *{"${f_class}::$_"}{CODE} );
   }
 
-
   # require always returns true on success
-  eval { require($file) } or do {
+  # ill-behaved modules might very well obliterate $_
+  eval { local $_; require($file) } or do {
 
     $@ = "Invalid class name '$f_class'" if $f_class =~ $invalid_class;
 
     if ($class->can('throw_exception')) {
       $class->throw_exception($@);
     } else {
-      croak $@;
+      Carp::croak $@;
     }
   };
 
@@ -232,11 +232,19 @@ sub load_optional_class {
   }
 }
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Matt S. Trout and the DBIx::Class team
+Matt S. Trout and the L<DBIx::Class team|DBIx::Class/CONTRIBUTORS>
 
 Pulled out into seperate module by Ash Berlin C<< <ash@cpan.org> >>
+
+Optimizations and overall bolt-tightening by Peter "ribasushi" Rabbitson
+C<< <ribasushi@cpan.org> >>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2006 - 2011 the Class::C3::Componentised L</AUTHORS> as listed
+above.
 
 =head1 LICENSE
 
