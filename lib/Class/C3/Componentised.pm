@@ -48,8 +48,11 @@ use warnings;
 use MRO::Compat;
 
 use Carp ();
+use List::Util ();
 
-our $VERSION = 1.0009;
+our $VERSION = '1.001000';
+
+$VERSION = eval $VERSION if $VERSION =~ /_/; # numify for warning-free dev releases
 
 my $invalid_class = qr/(?: \b:\b | \:{3,} | \:\:$ )/x;
 
@@ -188,13 +191,24 @@ sub inject_base {
   my $class = shift;
   my $target = shift;
 
-  for (reverse @_) {
-    no strict 'refs';
-    unshift ( @{"${target}::ISA"}, $_ )
-      unless ($target eq $_ || $target->isa($_));
-  }
-
   mro::set_mro($target, 'c3');
+
+  for my $comp (reverse @_) {
+    my $apply = do {
+      no strict 'refs';
+      sub { unshift ( @{"${target}::ISA"}, $comp ) };
+    };
+    unless ($target eq $comp || $target->isa($comp)) {
+      our %APPLICATOR_FOR;
+      if (my $apply_class
+            = List::Util::first { $APPLICATOR_FOR{$_} } @{mro::get_linear_isa($comp)}
+      ) {
+        $APPLICATOR_FOR{$apply_class}->_apply_component_to_class($comp,$target,$apply);
+      } else {
+        $apply->();
+      }
+    }
+  }
 }
 
 =head2 load_optional_class

@@ -1,5 +1,8 @@
 Revision history for Class-C3-Componentised
 
+1.001000 08 Aug 2011
+      - Add Class::C3::Componentised::ApplyHooks features
+
 1.0009   20 Mar 2011
       - Stop importing Carp functions (and thus polluting the inheritor
         namespaces)
